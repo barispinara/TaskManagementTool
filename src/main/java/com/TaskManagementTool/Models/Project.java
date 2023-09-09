@@ -1,16 +1,19 @@
 package com.TaskManagementTool.Models;
 
-import org.springframework.data.annotation.Id;
+
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.Id;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Project {
 
     @Id
