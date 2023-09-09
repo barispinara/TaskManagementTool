@@ -1,4 +1,4 @@
-package com.TaskManagementTool.Models;
+package com.TaskManagementTool.model;
 
 public enum TaskStatus {
     TODO,
