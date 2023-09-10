@@ -1,5 +1,6 @@
 package com.TaskManagementTool.model;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -39,6 +40,10 @@ public class Task {
     public Task(String taskName, Project project){
         this.taskName = taskName;
         this.project = project;
+        this.taskStatus = TaskStatus.TODO;
+        this.createdDate = new Date();
+        this.updatedDate = new Date();
     }
+
 
 }
