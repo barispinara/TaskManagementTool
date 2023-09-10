@@ -7,6 +7,5 @@ import java.util.Optional;
 
 public interface ProjectRepository extends CrudRepository<Project, Long> {
 
-    Optional<Project> getProjectById(Long id);
-    Optional<Project> getProjectByProjectName(String projectName);
+    Optional<Project> findProjectByProjectName(String projectName);
 }

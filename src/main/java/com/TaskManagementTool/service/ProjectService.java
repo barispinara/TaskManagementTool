@@ -1,7 +1,6 @@
 package com.TaskManagementTool.service;
 
 import com.TaskManagementTool.model.Project;
-import com.TaskManagementTool.payload.request.ProjectRequest;
 import com.TaskManagementTool.repository.ProjectRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,20 +15,17 @@ import java.util.Optional;
 public class ProjectService {
     private final ProjectRepository projectRepository;
 
-    public Project saveProject(ProjectRequest projectRequest){
-        Optional<Project> currProject = projectRepository.getProjectByProjectName(projectRequest.getProjectName());
+    public Project saveProject(Project project){
+        Optional<Project> currProject = projectRepository.findProjectByProjectName(project.getProjectName());
         if (currProject.isPresent()) {
-            throw new DataIntegrityViolationException("The given project name does already exists " + projectRequest.getProjectName());
+            throw new DataIntegrityViolationException("The given project name does already exists " + project.getProjectName());
         }
-        Project newProject = Project.builder()
-                .projectName(projectRequest.getProjectName())
-                .build();
 
-        return projectRepository.save(newProject);
+        return projectRepository.save(project);
     }
 
     public Project getProjectById(Long id){
-        return projectRepository.getProjectById(id).orElse(null);
+        return projectRepository.findById(id).orElse(null);
     }
 
     public List<Project> getAllProjects(){
@@ -37,15 +33,11 @@ public class ProjectService {
     }
 
     public void deleteProjectById(Long id){
-        projectRepository.deleteById(id);
+        Optional<Project> currProject = projectRepository.findById(id);
+        if (currProject.isEmpty()) {
+            throw new NoSuchElementException("Given id does not exists, please check " + id);
+        }
+        projectRepository.delete(currProject.get());
     }
 
-    public Project updateProject(ProjectRequest projectRequest){
-        Optional<Project> currProject = projectRepository.getProjectByProjectName(projectRequest.getProjectName());
-        if (currProject.isEmpty()) {
-            throw new NoSuchElementException("Given project information does not exists " + projectRequest.getProjectName());
-        }
-        currProject.get().setProjectName(projectRequest.getProjectName());
-        return projectRepository.save(currProject.get());
-    }
 }
