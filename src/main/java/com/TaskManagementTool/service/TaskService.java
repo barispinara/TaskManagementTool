@@ -1,15 +1,14 @@
 package com.TaskManagementTool.service;
 
+import com.TaskManagementTool.model.Project;
 import com.TaskManagementTool.model.Task;
+import com.TaskManagementTool.payload.request.UpdateTaskRequest;
 import com.TaskManagementTool.repository.TaskRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -17,13 +16,9 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
 
-    public Task saveTask(Task task){
-        Optional<Task> currTask = taskRepository.findTaskByTaskName(task.getTaskName());
-        if (currTask.isPresent()) {
-            throw new DataIntegrityViolationException("The given task already exists " + task.getTaskName());
-        }
-
-        return taskRepository.save(task);
+    public Task saveTask(String taskName, Project project){
+        Task newTask = new Task(taskName, project);
+        return taskRepository.save(newTask);
     }
 
     public Task getTaskById(Long id){
@@ -41,10 +36,15 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public Task updateTask(Task task){
-        if(!taskRepository.existsById(task.getId())){
-            throw new NoSuchElementException("Given task does not exists, please check " + task.getId());
+    public Task updateTask(UpdateTaskRequest updateTaskRequest){
+        Optional<Task> optionalTask = taskRepository.findById(updateTaskRequest.getId());
+        if (optionalTask.isEmpty()) {
+            throw new NoSuchElementException("Given task does not exists, please check " + updateTaskRequest.getId());
         }
-        return taskRepository.save(task);
+        Task currTask = optionalTask.get();
+        currTask.setUpdatedDate(new Date());
+        currTask.setTaskName(updateTaskRequest.getTaskName());
+        currTask.setTaskStatus(updateTaskRequest.getTaskStatus());
+        return taskRepository.save(currTask);
     }
 }
