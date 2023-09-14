@@ -4,6 +4,7 @@ package com.TaskManagementTool.controller;
 import com.TaskManagementTool.model.Project;
 import com.TaskManagementTool.service.ProjectService;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,10 +26,17 @@ public class ProjectController {
 
     @PostMapping(value = "/new")
     public ResponseEntity<?> saveProject(@RequestBody String projectName){
-        Project newProject = projectService.saveProject(projectName);
+        Project newProject;
+        try{
+            newProject = projectService.saveProject(projectName);
+        } catch(DataIntegrityViolationException e){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Given name already exists");
+        }
         return ResponseEntity
                 .ok()
-                .body(projectName + " is created successfully");
+                .body(newProject.getProjectName() + " is created successfully");
     }
 
     @GetMapping(value = "/{project_id}")
@@ -37,7 +45,7 @@ public class ProjectController {
         if (currProject == null) {
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
-                    .body("The given id does not exists");
+                    .body(projectId + " does not exists");
         }
         return ResponseEntity
                 .ok()
@@ -52,14 +60,14 @@ public class ProjectController {
                 .body(projectList);
     }
 
-    @DeleteMapping(value = "/{project_id")
+    @DeleteMapping(value = "/{project_id}")
     public ResponseEntity<?> deleteProjectById(@PathVariable("project_id") Long projectId){
         try{
             projectService.deleteProjectById(projectId);
         } catch (NoSuchElementException e){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(e);
+                    .body(projectId + " does not exists");
         }
         return ResponseEntity
                 .ok()
