@@ -50,22 +50,27 @@ public class ProjectServiceTest {
     @DisplayName("saveProject -> Given project name does not exist")
     @Test
     public void givenProjectObject_whenSaveProject_thenReturnProjectObject(){
+        String projectName = "test";
+
         when(projectRepository.findProjectByProjectName(isA(String.class))).thenReturn(Optional.empty());
         when(projectRepository.save(isA(Project.class))).thenReturn(project);
 
-        Project newProject = projectService.saveProject(project);
+        Project newProject = projectService.saveProject(projectName);
 
         assertNotNull(newProject);
         assertEquals(newProject, project);
+        assertEquals(newProject.getProjectName(), projectName);
     }
 
     @DisplayName("saveProject -> Given project name already exists")
     @Test
     public void givenProjectObject_whenSaveProject_thenThrowDataIntegrityViolationException(){
+        String projectName = "test";
+
         when(projectRepository.findProjectByProjectName(isA(String.class))).thenReturn(Optional.of(project));
 
         assertThrows(DataIntegrityViolationException.class, () -> {
-            projectService.saveProject(project);
+            projectService.saveProject(projectName);
         });
 
         verify(projectRepository, times(0)).save(project);
@@ -132,12 +137,12 @@ public class ProjectServiceTest {
     public void givenLongObject_whenDeleteProjectById_thenReturnNothing(){
         Long projectId = 1L;
 
-        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
-        doNothing().when(projectRepository).delete(project);
+        when(projectRepository.existsById(projectId)).thenReturn(true);
+        doNothing().when(projectRepository).deleteById(projectId);
 
         projectService.deleteProjectById(projectId);
 
-        verify(projectRepository, times(1)).delete(project);
+        verify(projectRepository, times(1)).deleteById(projectId);
     }
 
     @DisplayName("deleteProjectById -> When given Id does not exist")
@@ -145,12 +150,12 @@ public class ProjectServiceTest {
     public void givenLongObject_whenDeleteProjectById_thenThrowNoSuchElementException(){
         Long projectId = 1L;
 
-        when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
+        when(projectRepository.existsById(projectId)).thenReturn(false);
 
         assertThrows(NoSuchElementException.class, () -> {
             projectService.deleteProjectById(projectId);
         });
 
-        verify(projectRepository, times(0)).delete(project);
+        verify(projectRepository, times(0)).deleteById(projectId);
     }
 }

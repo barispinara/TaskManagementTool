@@ -5,10 +5,13 @@ import com.TaskManagementTool.model.Task;
 import com.TaskManagementTool.payload.request.UpdateTaskRequest;
 import com.TaskManagementTool.repository.TaskRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor

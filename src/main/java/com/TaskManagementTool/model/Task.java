@@ -1,9 +1,5 @@
 package com.TaskManagementTool.model;
-
-import java.time.LocalDateTime;
 import java.util.Date;
-
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

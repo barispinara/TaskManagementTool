@@ -15,13 +15,13 @@ import java.util.Optional;
 public class ProjectService {
     private final ProjectRepository projectRepository;
 
-    public Project saveProject(Project project){
-        Optional<Project> currProject = projectRepository.findProjectByProjectName(project.getProjectName());
+    public Project saveProject(String projectName){
+        Optional<Project> currProject = projectRepository.findProjectByProjectName(projectName);
         if (currProject.isPresent()) {
-            throw new DataIntegrityViolationException("The given project name does already exists " + project.getProjectName());
+            throw new DataIntegrityViolationException("The given project name does already exists " + projectName);
         }
-
-        return projectRepository.save(project);
+        Project newProject = new Project(projectName);
+        return projectRepository.save(newProject);
     }
 
     public Project getProjectById(Long id){
@@ -33,11 +33,9 @@ public class ProjectService {
     }
 
     public void deleteProjectById(Long id){
-        Optional<Project> currProject = projectRepository.findById(id);
-        if (currProject.isEmpty()) {
+        if (!projectRepository.existsById(id)) {
             throw new NoSuchElementException("Given id does not exists, please check " + id);
         }
-        projectRepository.delete(currProject.get());
+        projectRepository.deleteById(id);
     }
-
 }
