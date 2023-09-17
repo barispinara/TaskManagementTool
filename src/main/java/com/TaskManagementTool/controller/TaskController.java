@@ -81,7 +81,7 @@ public class TaskController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateTask(@RequestBody UpdateTaskRequest updateTaskRequest){
+    public ResponseEntity<?> updateTask(@RequestBody UpdateTaskRequest updateTaskRequest) {
         Task updatedTask;
         try {
             updatedTask = taskService.updateTask(updateTaskRequest);
