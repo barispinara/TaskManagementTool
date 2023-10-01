@@ -1,5 +1,6 @@
 import { Box, ThemeProvider, createTheme } from "@mui/material";
 import { Home } from "./pages/Home";
+import { Navigate, Route, Router, Routes } from "react-router-dom";
 
 const darkTheme = createTheme({
   palette: {

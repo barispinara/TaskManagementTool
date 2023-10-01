@@ -7,6 +7,7 @@ export const createProject = createAsyncThunk(
     '/new',
     async(projectName, {rejectWithValue}) => {
         try{
+            console.log("Service " , projectName)
             const payload = await AxiosApi.post(
                 `${serviceURL}/new` , {
                     projectName
@@ -39,6 +40,27 @@ export const deleteProject = createAsyncThunk(
         try{
             const payload = await AxiosApi.delete(
                 `${serviceURL}/${projectId}`
+            )
+            return payload.data;
+        } catch(error){
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
+
+export const updateProject = createAsyncThunk(
+    '/updateProject',
+    async(updateRequest, {rejectWithValue}) => {
+        try{
+            const{
+                id,
+                projectName
+            } = updateRequest;
+            const payload = await AxiosApi.put(
+                `${serviceURL}` , {
+                    id,
+                    projectName
+                }
             )
             return payload.data;
         } catch(error){

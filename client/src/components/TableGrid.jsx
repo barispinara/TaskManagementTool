@@ -1,20 +1,23 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     DataGrid,
     GridActionsCellItem,
     GridRowEditStopReasons,
-    GridRowModes
+    GridRowModes,
+    GridToolbarContainer
 } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Button } from '@mui/material';
 
 export const TableGrid = (props) => {
     const [rowModesModel, setRowModesModel] = useState({});
     const [rows, setRows] = useState(props.rows);
     const genericColumns = props.columns;
+    const {saveFunction, removeFunction} = props;
 
     const staticColumns = [
         {
@@ -68,6 +71,27 @@ export const TableGrid = (props) => {
         }
     ]
 
+    function EditToolbar(props){
+        const {setRows, setRowModesModel} = props;
+
+        const handleClick = () => {
+            const id = -1;
+            setRows((oldRows) => [...oldRows, {id:id, isNew:true}]);
+            setRowModesModel((oldModel) => ({
+                ...oldModel,
+                [id]: {mode: GridRowModes.Edit, fieldToFocus: genericColumns[1]['field']},
+            }))
+        }
+
+        return(
+            <GridToolbarContainer>
+                <Button color="primary" startIcon={<AddIcon/>} onClick={handleClick}>
+                    Add
+                </Button>
+            </GridToolbarContainer>
+        )
+    }
+
     const handleSaveClick = (id) => () => {
         setRowModesModel({
             ...rowModesModel,
@@ -92,7 +116,10 @@ export const TableGrid = (props) => {
     }
 
     const processRowUpdate = (newRow) => {
-        const updatedRow = { ...newRow, isNew: false };
+        if(newRow.hasOwnProperty('isNew') && newRow['isNew'] == true){
+            saveFunction(newRow)
+        }
+        const updatedRow = { ...newRow, isNew: false, id: newRow.id };
         setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
         return updatedRow;
     }
@@ -131,6 +158,12 @@ export const TableGrid = (props) => {
                 border: 1,
                 borderColor: 'white',
                 height: '100%'
+            }}
+            slots={{
+                toolbar: EditToolbar,
+            }}
+            slotProps={{
+                toolbar: {setRows, setRowModesModel},
             }}
 
         />

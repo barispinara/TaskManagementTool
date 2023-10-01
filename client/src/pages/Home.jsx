@@ -1,13 +1,10 @@
 import { Box, Card, Typography } from "@mui/material"
 import { Projects } from "../components/Projects"
+import { BrowserRouter, Navigate, Route, Router, Routes } from "react-router-dom"
 import { Tasks } from "../components/Tasks"
 
 
 export const Home = () => {
-    const onNewClick = () => {
-        console.log("New Button Clicked")
-    }
-
     return (
         <Card
             sx={{
@@ -31,8 +28,13 @@ export const Home = () => {
                     Task Management Tool
                 </Typography>
             </Box>
-            <Projects />
-            {/* <Tasks/> */}
+            <BrowserRouter>
+                <Routes>
+                    <Route exact path="/" element={<Projects/>}/>
+                    <Route path="*" element={<Navigate to="/" replace/>}/>
+                    <Route path="/:projectId" element={<Tasks/>}/>
+                </Routes>
+            </BrowserRouter>
         </Card>
     )
 }

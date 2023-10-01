@@ -1,70 +1,69 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { createProject, deleteProject, getAllProjects, updateProject } from "../../services/ProjectService"
+import { createTask, deleteTask, getProjectTasks, updateTask } from "../../services/TaskService"
 
 
 const initialState = {
-    projectList: [],
+    taskList : [],
     isLoading: false,
     responseStatus: 0,
     responseMessage: ''
 }
 
-export const projectSlice = createSlice({
-    name: 'project',
+export const taskSlice = createSlice({
+    name: 'task',
     initialState,
     reducers:{
 
     },
     extraReducers:{
-        [getAllProjects.pending] : (state) => {
+        [createTask.pending] : (state) => {
             state.isLoading = true;
         },
-        [getAllProjects.fulfilled] : (state, {payload}) => {
+        [createTask.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
             state.responseStatus = 200;
-            state.projectList = payload;
         },
-        [getAllProjects.rejected] : (state, {payload}) => {
+        [createTask.rejected] : (state, {payload}) => {
             state.isLoading = false;
             state.responseStatus = 400;
         },
-        [createProject.pending] : (state) => {
+        [getProjectTasks.pending] : (state) => {
             state.isLoading = true;
         },
-        [createProject.fulfilled] : (state, {payload}) => {
+        [getProjectTasks.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
+            state.taskList = payload;
             state.responseStatus = 200;
-            state.projectList = payload;
         },
-        [createProject.rejected] : (state, {payload}) => {
+        [getProjectTasks.rejected] : (state, {payload}) => {
             state.isLoading = false;
             state.responseStatus = 400;
         },
-        [deleteProject.pending] : (state) => {
+        [deleteTask.pending] : (state, {payload}) => {
             state.isLoading = true;
         },
-        [deleteProject.fulfilled] : (state, {payload}) => {
+        [deleteTask.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
             state.responseStatus = 200;
         },
-        [deleteProject.rejected] : (state, {payload}) => {
+        [deleteTask.rejected] : (state, {payload}) => {
             state.isLoading = false;
             state.responseStatus = 400;
         },
-        [updateProject.pending] : (state) => {
+        [updateTask.pending] : (state) => {
             state.isLoading = true;
         },
-        [updateProject.fulfilled] : (state, {payload}) => {
+        [updateTask.fulfilled]: (state, {payload}) => {
             state.isLoading = false;
             state.responseStatus = 200;
         },
-        [updateProject.rejected] : (state, {payload}) => {
+        [updateTask.rejected] : (state, {payload}) => {
             state.isLoading = false;
             state.responseStatus = 400;
         }
     }
 })
 
-export const {} = projectSlice.actions;
+export const {} = taskSlice.actions;
 
-export default projectSlice.reducer;
+export default taskSlice.reducer;
