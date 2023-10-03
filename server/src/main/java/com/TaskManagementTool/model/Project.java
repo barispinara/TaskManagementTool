@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Entity
 @Getter
 @Setter
@@ -22,7 +24,10 @@ public class Project {
     private Long id;
     private String projectName;
 
+    private Date createdDate;
+
     public Project(String projectName){
         this.projectName = projectName;
+        this.createdDate = new Date();
     }
 }
