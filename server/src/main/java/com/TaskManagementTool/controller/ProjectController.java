@@ -36,6 +36,10 @@ public class ProjectController {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Given name already exists");
+        } catch(IllegalArgumentException e){
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body(e.getMessage());
         }
         return ResponseEntity
                 .ok()

@@ -2,6 +2,7 @@ package com.TaskManagementTool.service;
 
 import com.TaskManagementTool.model.Project;
 import com.TaskManagementTool.repository.ProjectRepository;
+import com.TaskManagementTool.util.StringUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,10 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
 
     public Project saveProject(String projectName){
+        if (StringUtil.isNullOrWhiteSpace(projectName)){
+            throw new IllegalArgumentException("The given project name is empty");
+        }
+
         Optional<Project> currProject = projectRepository.findProjectByProjectName(projectName);
         if (currProject.isPresent()) {
             throw new DataIntegrityViolationException("The given project name does already exists " + projectName);
