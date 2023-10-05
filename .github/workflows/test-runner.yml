@@ -29,4 +29,4 @@ jobs:
         if: success() || failure()
         with:
           name: SpringBoot Report
-          path: target/custom-reports
+          path: server/target/custom-reports
