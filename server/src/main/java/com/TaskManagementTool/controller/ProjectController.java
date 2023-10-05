@@ -2,6 +2,7 @@ package com.TaskManagementTool.controller;
 
 
 import com.TaskManagementTool.model.Project;
+import com.TaskManagementTool.payload.request.CreateProjectRequest;
 import com.TaskManagementTool.service.ProjectService;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,10 +28,10 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping(value = "/new")
-    public ResponseEntity<?> saveProject(@RequestBody String projectName){
+    public ResponseEntity<?> saveProject(@RequestBody CreateProjectRequest createProjectRequest){
         Project newProject;
         try{
-            newProject = projectService.saveProject(projectName);
+            newProject = projectService.saveProject(createProjectRequest.getProjectName());
         } catch(DataIntegrityViolationException e){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)

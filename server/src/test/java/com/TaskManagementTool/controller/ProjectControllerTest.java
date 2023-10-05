@@ -1,6 +1,7 @@
 package com.TaskManagementTool.controller;
 
 import com.TaskManagementTool.model.Project;
+import com.TaskManagementTool.payload.request.CreateProjectRequest;
 import com.TaskManagementTool.service.ProjectService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -40,6 +41,7 @@ public class ProjectControllerTest {
     private ProjectService projectService;
 
     static Project project;
+    static CreateProjectRequest createProjectRequest;
     static ObjectMapper objectMapper;
     static ObjectWriter objectWriter;
 
@@ -51,36 +53,36 @@ public class ProjectControllerTest {
                 .projectName("test")
                 .build();
 
+        createProjectRequest = CreateProjectRequest.builder()
+                .projectName("test")
+                .build();
+
         objectMapper = new ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
     }
 
     @DisplayName("saveProject -> Given project name does not exist")
     @Test
-    public void givenProjectName_whenSaveProject_thenReturnOkStatus() throws Exception {
-        String projectName = "test";
-
-        when(projectService.saveProject(isA(String.class))).thenReturn(project);
+    public void givenCreateProjectRequest_whenSaveProject_thenReturnOkStatus() throws Exception {
+        when(projectService.saveProject(createProjectRequest.getProjectName())).thenReturn(project);
 
         mockMvc.perform(post("/project/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectWriter.writeValueAsString(projectName)))
+                .content(objectWriter.writeValueAsString(createProjectRequest)))
                 .andExpectAll(
                         status().isOk(),
-                        content().string(projectName + " is created successfully")
+                        content().string(createProjectRequest.getProjectName() + " is created successfully")
                 );
     }
 
     @DisplayName("saveProject -> Given project name already exists")
     @Test
-    public void givenProjectName_whenSaveProject_thenReturnBadRequestStatus() throws Exception{
-        String projectName = "test";
-
-        when(projectService.saveProject(isA(String.class))).thenThrow(DataIntegrityViolationException.class);
+    public void givenCreateProjectRequest_whenSaveProject_thenReturnBadRequestStatus() throws Exception{
+        when(projectService.saveProject(createProjectRequest.getProjectName())).thenThrow(DataIntegrityViolationException.class);
 
         mockMvc.perform(post("/project/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectWriter.writeValueAsString(projectName)))
+                .content(objectWriter.writeValueAsString(createProjectRequest)))
                 .andExpectAll(
                         status().isBadRequest(),
                         content().string("Given name already exists")
