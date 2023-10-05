@@ -89,6 +89,42 @@ public class ProjectControllerTest {
                 );
     }
 
+    @DisplayName("saveProject -> Given project name is null")
+    @Test
+    public void givenNullString_whenSaveProject_thenReturnNoContentStatus() throws Exception{
+        CreateProjectRequest tmpCreateProjectRequest = CreateProjectRequest.builder()
+                        .projectName(null)
+                        .build();
+
+        when(projectService.saveProject(tmpCreateProjectRequest.getProjectName())).thenThrow(new IllegalArgumentException("The given project name is empty"));
+
+        mockMvc.perform(post("/project/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectWriter.writeValueAsString(tmpCreateProjectRequest)))
+                .andExpectAll(
+                        status().isNoContent(),
+                        content().string("The given project name is empty")
+                );
+    }
+
+    @DisplayName("saveProject -> Given project name just has white space")
+    @Test
+    public void givenWhiteSpaceString_whenSaveProject_thenReturnNoContentStatus() throws Exception{
+        CreateProjectRequest tmpCreateProjectRequest = CreateProjectRequest.builder()
+                .projectName(" ")
+                .build();
+
+        when(projectService.saveProject(tmpCreateProjectRequest.getProjectName())).thenThrow(new IllegalArgumentException("The given project name is empty"));
+
+        mockMvc.perform(post("/project/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectWriter.writeValueAsString(tmpCreateProjectRequest)))
+                .andExpectAll(
+                        status().isNoContent(),
+                        content().string("The given project name is empty")
+                );
+    }
+
     @DisplayName("getProjectById -> Given Id exists")
     @Test
     public void givenId_whenGetProjectById_thenReturnOkStatus() throws Exception {
