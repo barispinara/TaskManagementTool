@@ -200,4 +200,47 @@ public class TaskServiceTest {
         verify(taskRepository, times(0)).save(isA(Task.class));
     }
 
+    @DisplayName("getCountOfTasksByProjectId -> When given project id exists")
+    @Test
+    public void givenLongObject_whenGetCountOfTasksByProjectId_thenReturnIntegerObject(){
+        when(taskRepository.countTasksByProjectId(project.getId())).thenReturn(10);
+
+        Integer countValue = taskService.getCountOfTasksByProjectId(project.getId());
+
+        verify(taskRepository, times(1)).countTasksByProjectId(project.getId());
+        assertEquals(countValue, 10);
+    }
+
+    @DisplayName("getCountOfTasksByProjectId -> When given project id does not exist")
+    @Test
+    public void givenLongObject_whenGetCountOfTasksByProjectId_thenReturnZeroValue(){
+        when(taskRepository.countTasksByProjectId(project.getId())).thenReturn(0);
+
+        Integer countValue = taskService.getCountOfTasksByProjectId(project.getId());
+
+        verify(taskRepository, times(1)).countTasksByProjectId(project.getId());
+        assertEquals(countValue, 0);
+    }
+
+    @DisplayName("getCountOfCompletedTasksByProjectId -> When given project id exists")
+    @Test
+    public void givenLongAndTaskStatusObject_whenGetCountOfCompletedTasksByProjectId_thenReturnIntegerObject(){
+        when(taskRepository.countTasksByProjectIdAndTaskStatus(project.getId(), TaskStatus.DONE)).thenReturn(6);
+
+        Integer countValue = taskService.getCountOfCompletedTasksByProjectId(project.getId(), TaskStatus.DONE);
+
+        verify(taskRepository, times(1)).countTasksByProjectIdAndTaskStatus(project.getId(), TaskStatus.DONE);
+        assertEquals(countValue, 6);
+    }
+
+    @DisplayName("getCountOfCompletedTasksByProjectId -> When given project id does not exist")
+    @Test
+    public void givenLongAndTaskStatusObject_whenGetCountOfCompletedTasksByProjectId_thenReturnZeroValue(){
+        when(taskRepository.countTasksByProjectIdAndTaskStatus(project.getId(), TaskStatus.DONE)).thenReturn(0);
+
+        Integer countValue = taskService.getCountOfCompletedTasksByProjectId(project.getId(), TaskStatus.DONE);
+
+        verify(taskRepository, times(1)).countTasksByProjectIdAndTaskStatus(project.getId(), TaskStatus.DONE);
+        assertEquals(countValue, 0);
+    }
 }

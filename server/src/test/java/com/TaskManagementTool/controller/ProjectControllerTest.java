@@ -1,11 +1,15 @@
 package com.TaskManagementTool.controller;
 
 import com.TaskManagementTool.model.Project;
+import com.TaskManagementTool.model.TaskStatus;
 import com.TaskManagementTool.payload.request.CreateProjectRequest;
+import com.TaskManagementTool.payload.response.ProjectResponse;
 import com.TaskManagementTool.service.ProjectService;
+import com.TaskManagementTool.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +28,7 @@ import java.util.NoSuchElementException;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -40,8 +45,13 @@ public class ProjectControllerTest {
     @MockBean
     private ProjectService projectService;
 
+    @MockBean
+    private TaskService taskService;
+
     static Project project;
     static CreateProjectRequest createProjectRequest;
+
+    static ProjectResponse projectResponse;
     static ObjectMapper objectMapper;
     static ObjectWriter objectWriter;
 
@@ -55,6 +65,12 @@ public class ProjectControllerTest {
 
         createProjectRequest = CreateProjectRequest.builder()
                 .projectName("test")
+                .build();
+
+        projectResponse = ProjectResponse.builder()
+                .project(project)
+                .completedTasks(10)
+                .totalTasks(12)
                 .build();
 
         objectMapper = new ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, false);
@@ -131,13 +147,17 @@ public class ProjectControllerTest {
         long id = 1L;
 
         when(projectService.getProjectById(isA(Long.class))).thenReturn(project);
+        when(taskService.getCountOfTasksByProjectId(id)).thenReturn(12);
+        when(taskService.getCountOfCompletedTasksByProjectId(id, TaskStatus.DONE)).thenReturn(10);
 
         mockMvc.perform(get("/project/"+id)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("projectName", Matchers.is("test"))
+                        jsonPath("project.projectName", Matchers.is("test")),
+                        jsonPath("totalTasks", Matchers.is(12)),
+                        jsonPath("completedTasks", Matchers.is(10))
                 );
     }
 
@@ -165,14 +185,22 @@ public class ProjectControllerTest {
                 .build();
 
         when(projectService.getAllProjects()).thenReturn(List.of(project,secProject));
+        when(taskService.getCountOfTasksByProjectId(project.getId())).thenReturn(10);
+        when(taskService.getCountOfCompletedTasksByProjectId(project.getId(), TaskStatus.DONE)).thenReturn(8);
+        when(taskService.getCountOfTasksByProjectId(secProject.getId())).thenReturn(9);
+        when(taskService.getCountOfCompletedTasksByProjectId(secProject.getId(), TaskStatus.DONE)).thenReturn(6);
 
         mockMvc.perform(get("/project")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$[0].projectName", Matchers.is("test")),
-                        jsonPath("$[1].projectName", Matchers.is("secTest"))
+                        jsonPath("$[0].project.projectName", Matchers.is("test")),
+                        jsonPath("$[0].totalTasks", Matchers.is(10)),
+                        jsonPath("$[0].completedTasks", Matchers.is(8)),
+                        jsonPath("$[1].project.projectName", Matchers.is("secTest")),
+                        jsonPath("$[1].totalTasks", Matchers.is(9)),
+                        jsonPath("$[1].completedTasks", Matchers.is(6))
                 );
     }
 

@@ -2,6 +2,7 @@ package com.TaskManagementTool.service;
 
 import com.TaskManagementTool.model.Project;
 import com.TaskManagementTool.model.Task;
+import com.TaskManagementTool.model.TaskStatus;
 import com.TaskManagementTool.payload.request.UpdateTaskRequest;
 import com.TaskManagementTool.repository.TaskRepository;
 import lombok.AllArgsConstructor;
@@ -49,5 +50,13 @@ public class TaskService {
         currTask.setTaskName(updateTaskRequest.getTaskName());
         currTask.setTaskStatus(updateTaskRequest.getTaskStatus());
         return taskRepository.save(currTask);
+    }
+
+    public Integer getCountOfTasksByProjectId(Long projectId){
+        return taskRepository.countTasksByProjectId(projectId);
+    }
+
+    public Integer getCountOfCompletedTasksByProjectId(Long projectId, TaskStatus taskStatus){
+        return taskRepository.countTasksByProjectIdAndTaskStatus(projectId, taskStatus);
     }
 }
