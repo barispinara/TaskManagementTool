@@ -3,13 +3,11 @@ package com.TaskManagementTool.controller;
 import com.TaskManagementTool.model.Project;
 import com.TaskManagementTool.model.TaskStatus;
 import com.TaskManagementTool.payload.request.CreateProjectRequest;
-import com.TaskManagementTool.payload.response.ProjectResponse;
 import com.TaskManagementTool.service.ProjectService;
 import com.TaskManagementTool.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +26,6 @@ import java.util.NoSuchElementException;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -45,13 +42,9 @@ public class ProjectControllerTest {
     @MockBean
     private ProjectService projectService;
 
-    @MockBean
-    private TaskService taskService;
-
     static Project project;
     static CreateProjectRequest createProjectRequest;
 
-    static ProjectResponse projectResponse;
     static ObjectMapper objectMapper;
     static ObjectWriter objectWriter;
 
@@ -67,12 +60,6 @@ public class ProjectControllerTest {
                 .projectName("test")
                 .build();
 
-        projectResponse = ProjectResponse.builder()
-                .project(project)
-                .completedTasks(10)
-                .totalTasks(12)
-                .build();
-
         objectMapper = new ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
     }
@@ -80,31 +67,39 @@ public class ProjectControllerTest {
     @DisplayName("saveProject -> Given project name does not exist")
     @Test
     public void givenCreateProjectRequest_whenSaveProject_thenReturnOkStatus() throws Exception {
-        when(projectService.saveProject(createProjectRequest.getProjectName())).thenReturn(project);
+        when(projectService.saveProject(createProjectRequest.getProjectName()))
+                .thenReturn(project);
 
         mockMvc.perform(post("/project/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(createProjectRequest)))
                 .andExpectAll(
                         status().isOk(),
-                        content().string(createProjectRequest.getProjectName() + " is created successfully")
+                        content().string(
+                                createProjectRequest.getProjectName() + " is created successfully"
+                        )
                 );
     }
 
     @DisplayName("saveProject -> Given project name already exists")
     @Test
     public void givenCreateProjectRequest_whenSaveProject_thenReturnBadRequestStatus() throws Exception{
-        when(projectService.saveProject(createProjectRequest.getProjectName())).thenThrow(DataIntegrityViolationException.class);
+        when(projectService.saveProject(createProjectRequest.getProjectName()))
+                .thenThrow(new DataIntegrityViolationException(
+                        "The given project name does already exist " + createProjectRequest.getProjectName()
+                ));
 
         mockMvc.perform(post("/project/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(createProjectRequest)))
                 .andExpectAll(
                         status().isBadRequest(),
-                        content().string("Given name already exists")
+                        content().string(
+                                "The given project name does already exist " +
+                                        createProjectRequest.getProjectName()
+                        )
                 );
     }
-
     @DisplayName("saveProject -> Given project name is null")
     @Test
     public void givenNullString_whenSaveProject_thenReturnNoContentStatus() throws Exception{
@@ -112,7 +107,10 @@ public class ProjectControllerTest {
                         .projectName(null)
                         .build();
 
-        when(projectService.saveProject(tmpCreateProjectRequest.getProjectName())).thenThrow(new IllegalArgumentException("The given project name is empty"));
+        when(projectService.saveProject(tmpCreateProjectRequest.getProjectName()))
+                .thenThrow(new IllegalArgumentException(
+                        "The given project name is empty"
+                ));
 
         mockMvc.perform(post("/project/new")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -130,7 +128,8 @@ public class ProjectControllerTest {
                 .projectName(" ")
                 .build();
 
-        when(projectService.saveProject(tmpCreateProjectRequest.getProjectName())).thenThrow(new IllegalArgumentException("The given project name is empty"));
+        when(projectService.saveProject(tmpCreateProjectRequest.getProjectName()))
+                .thenThrow(new IllegalArgumentException("The given project name is empty"));
 
         mockMvc.perform(post("/project/new")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -147,17 +146,13 @@ public class ProjectControllerTest {
         long id = 1L;
 
         when(projectService.getProjectById(isA(Long.class))).thenReturn(project);
-        when(taskService.getCountOfTasksByProjectId(id)).thenReturn(12);
-        when(taskService.getCountOfCompletedTasksByProjectId(id, TaskStatus.DONE)).thenReturn(10);
 
         mockMvc.perform(get("/project/"+id)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("project.projectName", Matchers.is("test")),
-                        jsonPath("totalTasks", Matchers.is(12)),
-                        jsonPath("completedTasks", Matchers.is(10))
+                        jsonPath("projectName", Matchers.is("test"))
                 );
     }
 
@@ -166,13 +161,17 @@ public class ProjectControllerTest {
     public void givenId_whenGetProjectById_thenReturnNoContentStatus() throws Exception {
         long id = 1L;
 
-        when(projectService.getProjectById(isA(Long.class))).thenReturn(null);
+        when(projectService.getProjectById(isA(Long.class)))
+                .thenThrow(new NoSuchElementException("The given project id does not exist, " +
+                        "please check " + id));
 
         mockMvc.perform(get("/project/"+id)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
-                        status().isNoContent(),
-                        content().string(id + " does not exists")
+                        status().isBadRequest(),
+                        content().string(
+                                "The given project id does not exist, please check " + id
+                        )
                 );
     }
 
@@ -185,33 +184,20 @@ public class ProjectControllerTest {
                 .build();
 
         when(projectService.getAllProjects()).thenReturn(List.of(project,secProject));
-        when(taskService.getCountOfTasksByProjectId(project.getId())).thenReturn(10);
-        when(taskService.getCountOfCompletedTasksByProjectId(project.getId(), TaskStatus.DONE)).thenReturn(8);
-        when(taskService.getCountOfTasksByProjectId(secProject.getId())).thenReturn(9);
-        when(taskService.getCountOfCompletedTasksByProjectId(secProject.getId(), TaskStatus.DONE)).thenReturn(6);
 
         mockMvc.perform(get("/project")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$[0].project.projectName", Matchers.is("test")),
-                        jsonPath("$[0].totalTasks", Matchers.is(10)),
-                        jsonPath("$[0].completedTasks", Matchers.is(8)),
-                        jsonPath("$[1].project.projectName", Matchers.is("secTest")),
-                        jsonPath("$[1].totalTasks", Matchers.is(9)),
-                        jsonPath("$[1].completedTasks", Matchers.is(6))
+                        jsonPath("$[0].projectName", Matchers.is("test")),
+                        jsonPath("$[1].projectName", Matchers.is("secTest"))
                 );
     }
 
     @DisplayName("getAllProjects -> When no project exists")
     @Test
     public void whenGetAllProjects_thenReturnOkStatusWithEmptyBody() throws Exception{
-        Project secProject = Project.builder()
-                .id(2L)
-                .projectName("secTest")
-                .build();
-
         when(projectService.getAllProjects()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/project")
@@ -245,13 +231,17 @@ public class ProjectControllerTest {
     public void givenId_whenDeleteProjectById_thenReturnStatusBadRequest() throws Exception{
         Long id = 1L;
 
-        doThrow(NoSuchElementException.class).when(projectService).deleteProjectById(id);
+        doThrow(new NoSuchElementException(
+                "The given project id does not exist, please check " + id
+        )).when(projectService).deleteProjectById(id);
 
         mockMvc.perform(delete("/project/"+id)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isBadRequest(),
-                        content().string(id + " does not exists")
+                        content().string(
+                                "The given project id does not exist, please check " + id
+                        )
                 );
     }
 

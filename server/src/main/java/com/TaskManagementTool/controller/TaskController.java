@@ -1,13 +1,12 @@
 package com.TaskManagementTool.controller;
 
 
-import com.TaskManagementTool.model.Project;
 import com.TaskManagementTool.model.Task;
 import com.TaskManagementTool.payload.request.CreateTaskRequest;
 import com.TaskManagementTool.payload.request.UpdateTaskRequest;
-import com.TaskManagementTool.service.ProjectService;
 import com.TaskManagementTool.service.TaskService;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -28,33 +27,42 @@ import java.util.NoSuchElementException;
 @RequestMapping("/task")
 public class TaskController {
     private final TaskService taskService;
-    private final ProjectService projectService;
 
     @PostMapping(value = "/new")
     public ResponseEntity<?> saveTask(@RequestBody CreateTaskRequest createTaskRequest){
-        Project currProject = projectService.getProjectById(createTaskRequest.getProjectId());
-        if (currProject == null) {
+        Task newTask;
+        try{
+            newTask = taskService.saveTask(
+                    createTaskRequest.getTaskName(),
+                    createTaskRequest.getProjectId()
+            );
+        } catch(IllegalArgumentException e){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch(NoSuchElementException e){
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
-                    .body("The given project id does not exist");
+                    .body(e.getMessage());
         }
-        Task newTask = taskService.saveTask(createTaskRequest.getTaskName(), currProject);
+
         return ResponseEntity
-                .ok()
-                .body(newTask.getTaskName() + " is created successfully");
+                .status(HttpStatus.OK)
+                .body(newTask);
     }
 
     @GetMapping(value = "/{task_id}")
     public ResponseEntity<?> getTaskById(@PathVariable("task_id") Long taskId){
-        Task currTask = taskService.getTaskById(taskId);
-        if (currTask == null) {
+        Task currTask;
+        try{
+            currTask = taskService.getTaskById(taskId);
+        } catch(NoSuchElementException e){
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
-                    .body(taskId + " does not exists");
+                    .body(e.getMessage());
         }
-
         return ResponseEntity
-                .ok()
+                .status(HttpStatus.OK)
                 .body(currTask);
     }
 
@@ -73,11 +81,10 @@ public class TaskController {
         } catch (NoSuchElementException e){
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(taskId + " does not exists");
+                    .body(e.getMessage());
         }
-
         return ResponseEntity
-                .ok()
+                .status(HttpStatus.OK)
                 .body(taskId + " is successfully deleted");
     }
 
@@ -89,9 +96,8 @@ public class TaskController {
         } catch (NoSuchElementException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(updateTaskRequest.getId() + " does not exists");
+                    .body(e.getMessage());
         }
-
         return ResponseEntity
                 .ok()
                 .body(updatedTask);

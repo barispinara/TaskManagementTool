@@ -95,10 +95,14 @@ public class ProjectServiceTest {
         Long projectId = 1L;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(NoSuchElementException.class, () -> {
+            projectService.getProjectById(projectId);
+        });
 
-        Project currProject = projectService.getProjectById(projectId);
-
-        assertNull(currProject);
+        assertEquals(
+                exception.getMessage(),
+                "The given project id does not exist, please check " + projectId
+        );
     }
 
     @DisplayName("getAllProjects -> When 2 project exists")
@@ -108,9 +112,7 @@ public class ProjectServiceTest {
                 .id(2L)
                 .projectName("test2")
                 .build();
-
         when(projectRepository.findAll()).thenReturn(List.of(project,secProject));
-
         List<Project> projectList = projectService.getAllProjects();
 
         assertFalse(projectList.isEmpty());
@@ -120,13 +122,7 @@ public class ProjectServiceTest {
     @DisplayName("getAllProjects -> When 0 project exists")
     @Test
     public void whenGetAllProjects_thenReturnEmptyProjectList(){
-        Project secProject = Project.builder()
-                .id(2L)
-                .projectName("test2")
-                .build();
-
         when(projectRepository.findAll()).thenReturn(Collections.emptyList());
-
         List<Project> projectList = projectService.getAllProjects();
 
         assertTrue(projectList.isEmpty());
