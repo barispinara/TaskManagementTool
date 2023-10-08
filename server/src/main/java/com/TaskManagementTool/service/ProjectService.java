@@ -1,6 +1,7 @@
 package com.TaskManagementTool.service;
 
 import com.TaskManagementTool.model.Project;
+import com.TaskManagementTool.payload.request.UpdateProjectRequest;
 import com.TaskManagementTool.repository.ProjectRepository;
 import com.TaskManagementTool.util.StringUtil;
 import lombok.AllArgsConstructor;
@@ -42,5 +43,14 @@ public class ProjectService {
             throw new NoSuchElementException("Given project id does not exists, please check " + id);
         }
         projectRepository.deleteById(id);
+    }
+
+    public Project updateProject(UpdateProjectRequest updateProjectRequest){
+        if (StringUtil.isNullOrWhiteSpace(updateProjectRequest.getProjectName())){
+            throw new IllegalArgumentException("The given project name is empty");
+        }
+        Project currProject = getProjectById(updateProjectRequest.getId());
+        currProject.setProjectName(updateProjectRequest.getProjectName());
+        return projectRepository.save(currProject);
     }
 }

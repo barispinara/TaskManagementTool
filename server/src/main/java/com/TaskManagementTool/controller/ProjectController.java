@@ -3,8 +3,10 @@ package com.TaskManagementTool.controller;
 
 import com.TaskManagementTool.model.Project;
 import com.TaskManagementTool.payload.request.CreateProjectRequest;
+import com.TaskManagementTool.payload.request.UpdateProjectRequest;
 import com.TaskManagementTool.service.ProjectService;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -81,5 +84,24 @@ public class ProjectController {
         return ResponseEntity
                 .ok()
                 .body(projectId + " is successfully deleted");
+    }
+
+    @PutMapping()
+    public ResponseEntity<?> updateProject(@RequestBody UpdateProjectRequest updateProjectRequest){
+        Project updatedProject;
+        try{
+            updatedProject = projectService.updateProject(updateProjectRequest);
+        } catch (NoSuchElementException e){
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body(e.getMessage());
+        } catch (IllegalArgumentException e){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(updatedProject);
     }
 }

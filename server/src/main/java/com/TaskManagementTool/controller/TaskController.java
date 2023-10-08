@@ -95,11 +95,15 @@ public class TaskController {
             updatedTask = taskService.updateTask(updateTaskRequest);
         } catch (NoSuchElementException e) {
             return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body(e.getMessage());
+        } catch (IllegalArgumentException e){
+            return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
         }
         return ResponseEntity
-                .ok()
+                .status(HttpStatus.OK)
                 .body(updatedTask);
     }
 }
