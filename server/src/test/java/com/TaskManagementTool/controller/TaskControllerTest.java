@@ -5,7 +5,6 @@ import com.TaskManagementTool.model.Task;
 import com.TaskManagementTool.model.TaskStatus;
 import com.TaskManagementTool.payload.request.CreateTaskRequest;
 import com.TaskManagementTool.payload.request.UpdateTaskRequest;
-import com.TaskManagementTool.service.ProjectService;
 import com.TaskManagementTool.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -25,14 +24,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -44,9 +41,6 @@ public class TaskControllerTest {
 
     @MockBean
     private TaskService taskService;
-
-    @MockBean
-    private ProjectService projectService;
 
     static Project project;
     static Task task;
@@ -83,32 +77,56 @@ public class TaskControllerTest {
         objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
     }
 
-    @DisplayName("saveTask -> Given project id exists")
+    @DisplayName("saveTask -> Given task name and project id are valid")
     @Test
     public void givenCreateTaskRequest_whenSaveTask_thenReturnOkStatus() throws Exception {
-        when(projectService.getProjectById(createTaskRequest.getProjectId())).thenReturn(project);
-        when(taskService.saveTask(createTaskRequest.getTaskName(), project)).thenReturn(task);
+        when(taskService.saveTask(createTaskRequest.getTaskName(), createTaskRequest.getProjectId())).thenReturn(task);
 
         mockMvc.perform(post("/task/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(createTaskRequest)))
                 .andExpectAll(
                         status().isOk(),
-                        content().string(task.getTaskName() + " is created successfully")
+                        jsonPath("taskName", Matchers.is("testTask")),
+                        jsonPath("taskStatus", Matchers.is("TODO")),
+                        jsonPath("id", Matchers.is(1)),
+                        jsonPath("project.id", Matchers.is(1)),
+                        jsonPath("project.projectName", Matchers.is("testProject"))
                 );
     }
 
-    @DisplayName("saveTask -> Given project id does not exist")
+    @DisplayName("saveTask -> Given task name is not valid")
+    @Test
+    public void givenCreateTaskRequest_whenSaveTask_thenReturnBadRequestStatus() throws Exception{
+        when(taskService.saveTask(createTaskRequest.getTaskName(), createTaskRequest.getProjectId()))
+                .thenThrow(new IllegalArgumentException("The given task name is empty"));
+
+        mockMvc.perform(post("/task/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectWriter.writeValueAsString(createTaskRequest)))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().string("The given task name is empty")
+                );
+    }
+
+    @DisplayName("saveTask -> Given task name is valid but project id does not exist")
     @Test
     public void givenCreateTaskRequest_whenSaveTask_thenReturnNoContentStatus() throws Exception{
-        when(projectService.getProjectById(createTaskRequest.getProjectId())).thenReturn(null);
+        when(taskService.saveTask(createTaskRequest.getTaskName(), createTaskRequest.getProjectId()))
+                .thenThrow(new NoSuchElementException(
+                        "The given project id does not exist, please check " + createTaskRequest.getProjectId()
+                ));
 
         mockMvc.perform(post("/task/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectWriter.writeValueAsString(createTaskRequest)))
                 .andExpectAll(
                         status().isNoContent(),
-                        content().string("The given project id does not exist")
+                        content().string(
+                                "The given project id does not exist, please check " +
+                                        createTaskRequest.getProjectId()
+                        )
                 );
     }
 
@@ -137,13 +155,17 @@ public class TaskControllerTest {
     public void givenLongObject_whenGetTaskById_thenReturnNoContentStatus() throws Exception{
         long taskId = 1L;
 
-        when(taskService.getTaskById(taskId)).thenReturn(null);
+        when(taskService.getTaskById(taskId)).thenThrow(new NoSuchElementException(
+                "The given task id does not exist " + taskId
+        ));
 
         mockMvc.perform(get("/task/"+taskId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isNoContent(),
-                        content().string(taskId + " does not exists")
+                        content().string(
+                                "The given task id does not exist " + taskId
+                        )
                 );
     }
 
@@ -222,13 +244,18 @@ public class TaskControllerTest {
     public void givenLongObject_whenDeleteTaskById_thenReturnBadRequestStatus() throws Exception{
         long taskId = 1L;
 
-        doThrow(NoSuchElementException.class).when(taskService).deleteTaskById(taskId);
+        doThrow(new NoSuchElementException(
+                "Given task id does not exist, please check " + taskId
+        )).when(taskService).deleteTaskById(taskId);
 
         mockMvc.perform(delete("/task/"+taskId)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isBadRequest(),
-                        content().string(taskId + " does not exists")
+                        content().string(
+                                "Given task id does not exist, please check " + taskId
+                        )
                 );
     }
+
 }
