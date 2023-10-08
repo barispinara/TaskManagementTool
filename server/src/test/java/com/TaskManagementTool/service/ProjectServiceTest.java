@@ -23,7 +23,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.isA;
@@ -80,9 +79,7 @@ public class ProjectServiceTest {
 
         when(projectRepository.findProjectByProjectName(isA(String.class))).thenReturn(Optional.of(project));
 
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            projectService.saveProject(projectName);
-        });
+        assertThrows(DataIntegrityViolationException.class, () -> projectService.saveProject(projectName));
 
         verify(projectRepository, times(0)).save(project);
     }
@@ -106,9 +103,7 @@ public class ProjectServiceTest {
         Long projectId = 1L;
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
-        Exception exception = assertThrows(NoSuchElementException.class, () -> {
-            projectService.getProjectById(projectId);
-        });
+        Exception exception = assertThrows(NoSuchElementException.class, () -> projectService.getProjectById(projectId));
 
         assertEquals(
                 exception.getMessage(),
@@ -159,9 +154,7 @@ public class ProjectServiceTest {
 
         when(projectRepository.existsById(projectId)).thenReturn(false);
 
-        assertThrows(NoSuchElementException.class, () -> {
-            projectService.deleteProjectById(projectId);
-        });
+        assertThrows(NoSuchElementException.class, () -> projectService.deleteProjectById(projectId));
 
         verify(projectRepository, times(0)).deleteById(projectId);
     }
@@ -194,9 +187,7 @@ public class ProjectServiceTest {
                     updateProjectRequest.getProjectName()
             )).thenReturn(true);
 
-            Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-                projectService.updateProject(updateProjectRequest);
-            });
+            Exception exception = assertThrows(IllegalArgumentException.class, () -> projectService.updateProject(updateProjectRequest));
 
             assertEquals(
                     exception.getMessage(),
@@ -215,9 +206,7 @@ public class ProjectServiceTest {
 
             when(projectRepository.findById(updateProjectRequest.getId())).thenReturn(Optional.empty());
 
-            Exception exception = assertThrows(NoSuchElementException.class, () -> {
-                projectService.updateProject(updateProjectRequest);
-            });
+            Exception exception = assertThrows(NoSuchElementException.class, () -> projectService.updateProject(updateProjectRequest));
 
             assertEquals(
                     exception.getMessage(),

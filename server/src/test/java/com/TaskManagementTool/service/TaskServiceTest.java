@@ -3,11 +3,9 @@ package com.TaskManagementTool.service;
 import com.TaskManagementTool.model.Project;
 import com.TaskManagementTool.model.Task;
 import com.TaskManagementTool.model.TaskStatus;
-import com.TaskManagementTool.payload.request.CreateTaskRequest;
 import com.TaskManagementTool.payload.request.UpdateTaskRequest;
 import com.TaskManagementTool.repository.TaskRepository;
 import com.TaskManagementTool.util.StringUtil;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,11 +24,9 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -85,9 +81,7 @@ public class TaskServiceTest {
     public void givenTaskNameAndId_whenSaveTask_thenThrowIllegalException(){
         try(MockedStatic<StringUtil> mockedStringUtil = mockStatic(StringUtil.class)){
             mockedStringUtil.when(() -> StringUtil.isNullOrWhiteSpace(null)).thenReturn(true);
-            Exception exception = assertThrows(IllegalArgumentException.class,() -> {
-                taskService.saveTask(null, project.getId());
-            });
+            Exception exception = assertThrows(IllegalArgumentException.class,() -> taskService.saveTask(null, project.getId()));
             assertEquals(exception.getMessage(), "The given task name is empty");
         }
     }
@@ -129,9 +123,7 @@ public class TaskServiceTest {
         Long taskId = 1L;
         when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(NoSuchElementException.class, () -> {
-            taskService.getTaskById(taskId);
-        });
+        Exception exception = assertThrows(NoSuchElementException.class, () -> taskService.getTaskById(taskId));
 
         assertEquals(exception.getMessage(), "The given task id does not exist " + taskId);
     }
@@ -188,9 +180,7 @@ public class TaskServiceTest {
 
         when(taskRepository.existsById(taskId)).thenReturn(false);
 
-        Exception exception = assertThrows(NoSuchElementException.class, () -> {
-            taskService.deleteTaskById(taskId);
-        });
+        Exception exception = assertThrows(NoSuchElementException.class, () -> taskService.deleteTaskById(taskId));
 
         verify(taskRepository, times(0)).deleteById(taskId);
         assertEquals(exception.getMessage(), "Given task id does not exist, please check " + taskId);
@@ -221,9 +211,7 @@ public class TaskServiceTest {
         try(MockedStatic<StringUtil> mockedStringUtil = mockStatic(StringUtil.class)){
             mockedStringUtil.when(() -> StringUtil.isNullOrWhiteSpace(updateTaskRequest.getTaskName()))
                     .thenReturn(true);
-            Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-                taskService.updateTask(updateTaskRequest);
-            });
+            Exception exception = assertThrows(IllegalArgumentException.class, () -> taskService.updateTask(updateTaskRequest));
             assertEquals(exception.getMessage(), "The given task name is empty");
         }
     }

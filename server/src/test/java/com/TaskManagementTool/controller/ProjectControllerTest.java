@@ -1,10 +1,8 @@
 package com.TaskManagementTool.controller;
 
 import com.TaskManagementTool.model.Project;
-import com.TaskManagementTool.model.TaskStatus;
 import com.TaskManagementTool.payload.request.CreateProjectRequest;
 import com.TaskManagementTool.service.ProjectService;
-import com.TaskManagementTool.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
