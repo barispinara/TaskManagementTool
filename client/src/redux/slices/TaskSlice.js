@@ -6,7 +6,6 @@ const initialState = {
     taskList : [],
     isLoading: false,
     responseStatus: 0,
-    responseMessage: ''
 }
 
 export const taskSlice = createSlice({
@@ -21,45 +20,45 @@ export const taskSlice = createSlice({
         },
         [createTask.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 200;
+            state.responseStatus = payload.responseStatus;
         },
         [createTask.rejected] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 400;
+            state.responseStatus = payload.responseStatus;
         },
         [getProjectTasks.pending] : (state) => {
             state.isLoading = true;
         },
         [getProjectTasks.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
-            state.taskList = payload;
-            state.responseStatus = 200;
+            state.responseStatus = payload.responseStatus;
+            state.taskList = payload.data;
         },
         [getProjectTasks.rejected] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 400;
+            state.responseStatus = payload.responseStatus;
         },
-        [deleteTask.pending] : (state, {payload}) => {
+        [deleteTask.pending] : (state) => {
             state.isLoading = true;
         },
         [deleteTask.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 200;
+            state.responseStatus = payload.responseStatus;
         },
         [deleteTask.rejected] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 400;
+            state.responseStatus = payload.responseStatus;
         },
         [updateTask.pending] : (state) => {
             state.isLoading = true;
         },
         [updateTask.fulfilled]: (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 200;
+            state.responseStatus = payload.responseStatus;
         },
         [updateTask.rejected] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 400;
+            state.responseStatus = payload.responseStatus;
         }
     }
 })

@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Topbar } from './Topbar'
 import { Box, Button, CircularProgress } from '@mui/material'
 import { TableGrid } from './TableGrid';
 import { useDispatch, useSelector } from 'react-redux';
-import { createProject, deleteProject, getAllProjects } from '../services/ProjectService';
+import { createProject, deleteProject, getAllProjects, updateProject } from '../services/ProjectService';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 export const Projects = () => {
 
     const loading = useSelector((state) => state.project.isLoading);
-    const responseMessage = useSelector((state) => state.project.responseMessage);
     const responseStatus = useSelector((state) => state.project.responseStatus);
+    const responseProject = useSelector((state) => state.project.project);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const projectList = useSelector((state) => state.project.projectList);
@@ -32,18 +32,6 @@ export const Projects = () => {
             editable: true,
         },
         {
-            field: 'totalTasks',
-            headerName: 'Total Tasks',
-            minWidth: 60,
-            flex: 0.20
-        },
-        {
-            field: 'completedTasks',
-            headerName: 'Completed Tasks',
-            minWidth: 60,
-            flex: 0.20
-        },
-        {
             field: 'createdDate',
             headerName: 'Created Date',
             minWidth: 60,
@@ -61,20 +49,30 @@ export const Projects = () => {
     ]
     
     useEffect(() => {
-        console.log("Is it called")
         getProjects();
     }, [])
 
     async function getProjects() {
-        await dispatch(getAllProjects("test"));
+        await dispatch(getAllProjects());
     }
 
     async function saveProject(savedRow) {
         await dispatch(createProject(savedRow['projectName']));
+        getProjects();
     }
 
     async function removeProject(projectId){
         await dispatch(deleteProject(projectId));
+        getProjects();
+    }
+
+    async function modifyProject(updatedRow){
+        const updateProjectRequest = {
+            id: updatedRow.id,
+            projectName: updatedRow.projectName,
+        };
+        await dispatch(updateProject(updateProjectRequest));
+        getProjects();
     }
 
     const goTaskPage = (id) => {
@@ -96,6 +94,7 @@ export const Projects = () => {
                             columns={columns}
                             saveFunction={saveProject}
                             removeFunction={removeProject}
+                            updateFunction={modifyProject}
                         />
                         : null
             }

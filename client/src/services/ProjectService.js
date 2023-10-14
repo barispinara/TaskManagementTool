@@ -7,13 +7,14 @@ export const createProject = createAsyncThunk(
     '/new',
     async(projectName, {rejectWithValue}) => {
         try{
-            console.log("Service " , projectName)
             const payload = await AxiosApi.post(
                 `${serviceURL}/new` , {
                     projectName
                 }
             )
-            return payload.data;
+            const data = payload.data;
+            const responseStatus = payload.status;
+            return {data, responseStatus};
         } catch (error){
             return rejectWithValue(error.response.data)
         }
@@ -22,12 +23,14 @@ export const createProject = createAsyncThunk(
 
 export const getAllProjects = createAsyncThunk(
     '/',
-    async(testValue, {rejectWithValue}) => {
+    async(_, {rejectWithValue}) => {
         try{
             const payload = await AxiosApi.get(
                 `${serviceURL}`
             )
-            return payload.data;
+            const data = payload.data;
+            const responseStatus = payload.status;
+            return {data, responseStatus};
         } catch(error){
             return rejectWithValue(error.response.data)
         }
@@ -41,7 +44,9 @@ export const deleteProject = createAsyncThunk(
             const payload = await AxiosApi.delete(
                 `${serviceURL}/${projectId}`
             )
-            return payload.data;
+            const data = payload.data;
+            const responseStatus = payload.status;
+            return {data, responseStatus};
         } catch(error){
             return rejectWithValue(error.response.data)
         }
@@ -50,19 +55,21 @@ export const deleteProject = createAsyncThunk(
 
 export const updateProject = createAsyncThunk(
     '/updateProject',
-    async(updateRequest, {rejectWithValue}) => {
+    async(updateProjectRequest, {rejectWithValue}) => {
         try{
             const{
                 id,
                 projectName
-            } = updateRequest;
+            } = updateProjectRequest;
             const payload = await AxiosApi.put(
                 `${serviceURL}` , {
                     id,
                     projectName
                 }
             )
-            return payload.data;
+            const data = payload.data;
+            const responseStatus = payload.status;
+            return {data, responseStatus};
         } catch(error){
             return rejectWithValue(error.response.data)
         }
