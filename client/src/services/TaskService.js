@@ -13,12 +13,14 @@ export const createTask = createAsyncThunk(
                 taskName
             } = createTaskRequest;
             const payload = await AxiosApi.post(
-                `${serviceURL}` , {
+                `${serviceURL}/new` , {
                     projectId,
                     taskName
                 }
             )
-            return payload.data;
+            const data = payload.data;
+            const responseStatus = payload.status;
+            return {data, responseStatus};
         } catch(error){
             return rejectWithValue(error.response.data)
         }
@@ -32,7 +34,9 @@ export const getProjectTasks = createAsyncThunk(
             const payload = await AxiosApi.get(
                 `${serviceURL}/all/${projectId}`
             )
-            return payload.data;
+            const data = payload.data;
+            const responseStatus = payload.status;
+            return {data, responseStatus};
         } catch(error){
             return rejectWithValue(error.response.data);
         }
@@ -46,7 +50,9 @@ export const deleteTask = createAsyncThunk(
             const payload = await AxiosApi.delete(
                 `${serviceURL}/${taskId}`
             )
-            return payload.data;
+            const data = payload.data;
+            const responseStatus = payload.status;
+            return {data, responseStatus};
         } catch(error){
             return rejectWithValue(error.response.data);
         }
@@ -63,13 +69,15 @@ export const updateTask = createAsyncThunk(
                 taskStatus
             } = updateTaskRequest
             const payload = await AxiosApi.put(
-                `{$serviceURL}` , {
+                `${serviceURL}` , {
                     id,
                     taskName,
                     taskStatus
                 }
             )
-            return payload.data;
+            const data = payload.data;
+            const responseStatus = payload.status;
+            return {data, responseStatus};
         } catch(error){
             return rejectWithValue(error.response.data);
         }

@@ -6,7 +6,6 @@ const initialState = {
     projectList: [],
     isLoading: false,
     responseStatus: 0,
-    responseMessage: ''
 }
 
 export const projectSlice = createSlice({
@@ -21,46 +20,45 @@ export const projectSlice = createSlice({
         },
         [getAllProjects.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 200;
-            state.projectList = payload;
+            state.responseStatus = payload.responseStatus;
+            state.projectList = payload.data;
         },
         [getAllProjects.rejected] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 400;
+            state.responseStatus = payload.responseStatus;
         },
         [createProject.pending] : (state) => {
             state.isLoading = true;
         },
         [createProject.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 200;
-            state.projectList = payload;
+            state.responseStatus = payload.responseStatus;
         },
         [createProject.rejected] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 400;
+            state.responseStatus = payload.responseStatus;
         },
         [deleteProject.pending] : (state) => {
             state.isLoading = true;
         },
         [deleteProject.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 200;
+            state.responseStatus = payload.responseStatus;
         },
         [deleteProject.rejected] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 400;
+            state.responseStatus = payload.responseStatus;
         },
         [updateProject.pending] : (state) => {
             state.isLoading = true;
         },
         [updateProject.fulfilled] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 200;
+            state.responseStatus = payload.responseStatus;
         },
         [updateProject.rejected] : (state, {payload}) => {
             state.isLoading = false;
-            state.responseStatus = 400;
+            state.responseStatus = payload.responseStatus;
         }
     }
 })

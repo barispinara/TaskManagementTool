@@ -7,13 +7,12 @@ import { TaskStatus } from '../models/TaskStatus';
 import { Box, CircularProgress } from '@mui/material';
 import { Topbar } from './Topbar';
 import { TableGrid } from './TableGrid';
-import { getProjectTasks } from '../services/TaskService';
+import { createTask, deleteTask, getProjectTasks, updateTask } from '../services/TaskService';
 
 export const Tasks = () => {
 
     const { projectId } = useParams();
     const loading = useSelector((state) => state.task.isLoading);
-    const responseMessage = useSelector((state) => state.task.responseMessage);
     const responseStatus = useSelector((state) => state.task.responseStatus);
     const dispatch = useDispatch();
     const taskList = useSelector((state) => state.task.taskList);
@@ -29,8 +28,8 @@ export const Tasks = () => {
         {
             field: 'taskName',
             headerName: 'Task Name',
-            minWidth: 120,
-            flex: 0.30,
+            minWidth: 90,
+            flex: 0.20,
             editable: true,
         },
         {
@@ -38,7 +37,7 @@ export const Tasks = () => {
             type: 'singleSelect',
             headerName: 'Status',
             renderCell: renderTaskStatus,
-            minWidth: 60,
+            minWidth: 50,
             valueOptions: [
                 TaskStatus.TODO,
                 TaskStatus.PROGRESS,
@@ -50,25 +49,48 @@ export const Tasks = () => {
         {
             field: 'createdDate',
             headerName: 'Created Date',
-            minWidth: 60,
+            minWidth: 50,
             flex: 0.20,
         },
         {
             field: 'updatedDate',
             headerName: 'Updated Date',
-            minWidth: 60,
+            minWidth: 50,
             flex: 0.20,
         },
 
     ]
 
     useEffect(() => {
-        getTasks(projectId)
-        console.log(taskList)
+        getTasks()
     }, []);
 
-    async function getTasks(id) {
-        await dispatch(getProjectTasks(id));
+    async function getTasks() {
+        await dispatch(getProjectTasks(projectId));
+    }
+
+    async function saveTask(savedRow){
+        const createTaskRequest = {
+            taskName: savedRow.taskName,
+            projectId: projectId,
+        };
+        await dispatch(createTask(createTaskRequest));
+        getTasks();
+    }
+
+    async function removeTask(taskId){
+        await dispatch(deleteTask(taskId));
+        getTasks();
+    }
+
+    async function modifyTask(updatedRow){
+        const updateTaskRequest = {
+            id: updatedRow.id,
+            taskName: updatedRow.taskName,
+            taskStatus: updatedRow.taskStatus,
+        };
+        await dispatch(updateTask(updateTaskRequest));
+        getTasks();
     }
 
     return (
@@ -84,6 +106,9 @@ export const Tasks = () => {
                         ? <TableGrid
                             rows={taskList}
                             columns={columns}
+                            saveFunction={saveTask}
+                            removeFunction={removeTask}
+                            updateFunction={modifyTask}
                         />
                         : null
             }

@@ -8,6 +8,7 @@ import com.TaskManagementTool.service.ProjectService;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -68,6 +69,7 @@ public class ProjectController {
         List<Project> projectList = projectService.getAllProjects();
         return ResponseEntity
                 .ok()
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(projectList);
     }
 

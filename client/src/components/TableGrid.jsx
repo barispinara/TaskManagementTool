@@ -17,15 +17,15 @@ export const TableGrid = (props) => {
     const [rowModesModel, setRowModesModel] = useState({});
     const [rows, setRows] = useState(props.rows);
     const genericColumns = props.columns;
-    const {saveFunction, removeFunction} = props;
+    const {saveFunction, removeFunction, updateFunction} = props;
 
     const staticColumns = [
         {
             field: 'actions',
             type: 'actions',
             headerName: 'Actions',
-            width: 80,
-            flex: 0.30,
+            width: 50,
+            flex: 0.15,
             cellClassName: 'actions',
             getActions: ({ id }) => {
                 const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -92,14 +92,20 @@ export const TableGrid = (props) => {
         )
     }
 
+    useEffect(() => {
+        console.log("useEffect " , rows);
+    }, [rows])
+
     const handleSaveClick = (id) => () => {
         setRowModesModel({
             ...rowModesModel,
             [id]: { mode: GridRowModes.View }
         });
+        
     }
 
     const handleDeleteClick = (id) => () => {
+        removeFunction(id);
         setRows(rows.filter((row) => row.id !== id));
     }
 
@@ -116,11 +122,15 @@ export const TableGrid = (props) => {
     }
 
     const processRowUpdate = (newRow) => {
-        if(newRow.hasOwnProperty('isNew') && newRow['isNew'] == true){
+        if(newRow.hasOwnProperty('isNew') && newRow['isNew'] === true){
             saveFunction(newRow)
         }
+        else{
+            updateFunction(newRow)
+        }
         const updatedRow = { ...newRow, isNew: false, id: newRow.id };
-        setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+        setRows(rows.map((row) => (row.id === updatedRow.id ? updatedRow : row)));
+        //getFunction();
         return updatedRow;
     }
 
