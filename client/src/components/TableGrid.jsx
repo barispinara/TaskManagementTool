@@ -122,7 +122,7 @@ export const TableGrid = (props) => {
     }
 
     const processRowUpdate = (newRow) => {
-        if(newRow.hasOwnProperty('isNew') && newRow['isNew'] == true){
+        if(newRow.hasOwnProperty('isNew') && newRow['isNew'] === true){
             saveFunction(newRow)
         }
         else{

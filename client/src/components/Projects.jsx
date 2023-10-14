@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Topbar } from './Topbar'
 import { Box, Button, CircularProgress } from '@mui/material'
 import { TableGrid } from './TableGrid';
 import { useDispatch, useSelector } from 'react-redux';
 import { createProject, deleteProject, getAllProjects, updateProject } from '../services/ProjectService';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import { Navigate, useNavigate } from 'react-router-dom';
+import {useNavigate } from 'react-router-dom';
 
 export const Projects = () => {
 
     const loading = useSelector((state) => state.project.isLoading);
     const responseStatus = useSelector((state) => state.project.responseStatus);
-    const responseProject = useSelector((state) => state.project.project);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const projectList = useSelector((state) => state.project.projectList);

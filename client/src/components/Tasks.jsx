@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom';
 import { renderTaskStatus } from './TaskStatusRenderer';
@@ -14,7 +14,6 @@ export const Tasks = () => {
     const { projectId } = useParams();
     const loading = useSelector((state) => state.task.isLoading);
     const responseStatus = useSelector((state) => state.task.responseStatus);
-    const responseTask = useSelector((state) => state.task.task);
     const dispatch = useDispatch();
     const taskList = useSelector((state) => state.task.taskList);
 
@@ -65,10 +64,6 @@ export const Tasks = () => {
     useEffect(() => {
         getTasks()
     }, []);
-
-    useEffect(() => {
-        console.log("loading " , loading)
-    }, [loading])
 
     async function getTasks() {
         await dispatch(getProjectTasks(projectId));
