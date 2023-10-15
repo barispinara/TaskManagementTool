@@ -34,7 +34,6 @@
 ## Table Of Contents
 
 * [About the Project](#about-the-project)
-* [Built With](#built-with)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
 * [Usage](#usage)
@@ -65,29 +64,34 @@ ___
 
 #### 1. Server
 > Enter these commands in /server folder
+
 `
-    mvn clean install
+mvn clean install
 `
+
 `
-    mvn spring-boot:run
+mvn spring-boot:run
 `
 
 #### 2. Client
 > Enter these commands in /client folder
+
 `
-    yarn
+yarn
 `
+
 `
-    yarn start
+yarn start
 `
 
 ### Docker Run
 ___
 `
-    docker-compose build
+docker-compose build
 `
+
 `
-    docker-compose up -d
+docker-compose up -d
 `
 
 ### Prerequisites
