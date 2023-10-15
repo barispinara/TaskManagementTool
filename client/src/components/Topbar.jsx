@@ -16,7 +16,16 @@ export const Topbar = ({ title, isBackArrowRequested }) => {
             <AppBar position="static">
                 <Toolbar>
                     {(isBackArrowRequested === true)
-                        ? <Button color="primary" startIcon={<KeyboardReturnIcon />} onClick={goBack} />
+                        ? <Button 
+                        sx={{
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                            margin: 1
+                        }}
+                        color="primary" 
+                        onClick={goBack} >
+                            <KeyboardReturnIcon />
+                        </Button>
                         : null
                     }
                     <Typography variant="subtitle1" component="div" sx={{ flexGrow: 1 }}>
