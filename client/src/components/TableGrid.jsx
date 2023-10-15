@@ -130,7 +130,6 @@ export const TableGrid = (props) => {
         }
         const updatedRow = { ...newRow, isNew: false, id: newRow.id };
         setRows(rows.map((row) => (row.id === updatedRow.id ? updatedRow : row)));
-        //getFunction();
         return updatedRow;
     }
 
@@ -154,20 +153,20 @@ export const TableGrid = (props) => {
             columns={[...genericColumns, ...staticColumns]}
             initialState={{
                 pagination: {
-                    paginationModel: { page: 0, pageSize: 5 },
+                    paginationModel: { page: 0, pageSize: 10 },
                 }
             }}
-            pageSizeOptions={[5, 10]}
+            pageSizeOptions={[10, 15]}
             editMode='row'
             rowModesModel={rowModesModel}
             onRowModesModelChange={handleRowModesModelChange}
             onRowEditStop={handleRowEditStop}
             processRowUpdate={processRowUpdate}
+            autoHeight={false}
             sx={{
                 boxShadow: 1,
                 border: 1,
                 borderColor: 'white',
-                height: '100%'
             }}
             slots={{
                 toolbar: EditToolbar,

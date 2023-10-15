@@ -43,6 +43,7 @@ export const Projects = () => {
                     day: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit',
+                    second: '2-digit',
                     hour12: false,
                 });
             },
@@ -99,13 +100,16 @@ export const Projects = () => {
                 (loading === true)
                     ? <CircularProgress />
                     : (loading === false && responseStatus === 200)
-                        ? <TableGrid
-                            rows={projectList}
-                            columns={columns}
-                            saveFunction={saveProject}
-                            removeFunction={removeProject}
-                            updateFunction={modifyProject}
-                        />
+                        ?
+                        <div style={{height: '38rem'}}>
+                            <TableGrid
+                                rows={projectList}
+                                columns={columns}
+                                saveFunction={saveProject}
+                                removeFunction={removeProject}
+                                updateFunction={modifyProject}
+                            />
+                        </div>
                         : null
             }
         </Box>
